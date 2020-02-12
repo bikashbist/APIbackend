@@ -4,6 +4,7 @@ const dotenv = require('dotenv').config();
 const cors = require('cors');
 const morgan = require('morgan');
 const userRouter = require('./routes/user');
+const proImageRouter = require('./routes/userImage');
 
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(express.urlencoded({extended:true}))
 const mongoose = require('mongoose');
 
 app.use('/users', userRouter);
+app.use('/proImageUpload', proImageRouter);
 
 
 mongoose.connect(process.env.URL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
