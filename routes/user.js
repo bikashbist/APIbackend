@@ -54,35 +54,31 @@ router.post('/login', (req, res, next) => {
                 let err = new Error('User  is not registered!');
                 err.status = 401;
                 return next(err);
-            }else if(user.type=="normal"){
-
-                bcrypt.compare(req.body.password, user.password, function (err, status) {
-                    if (!status) {
-                        let err = new Error('You entered wrong password!');
-                        err.status = 401;
-                        return next(err);
-                    }
-    
-    
-                    let token = jwt.sign({ userId: user._id }, process.env.SECRET);
-                    res.json({ status: 'Success normal login!', token: token });
-                });
-            }else if(user.type=="candidate"){
-
-                bcrypt.compare(req.body.password, user.password, function (err, status) {
-                    if (!status) {
-                        let err = new Error('You entered wrong password!');
-                        err.status = 401;
-                        return next(err);
-                    }
-    
-    
-                    let token = jwt.sign({ userId: user._id }, process.env.SECRET);
-                    res.json({ status: 'Success candidate login!', token: token });
-                });
             }
-           
-          
+               else {
+                    bcrypt.compare(req.body.password, user.password, function (err, status) {
+                        if (!status) {
+                            let err = new Error('You entered wrong password!');
+                            err.status = 401;
+                            return next(err);
+                        }
+
+                        else if(user.type=="voter"){
+                            let token = jwt.sign({ userId: user._id }, process.env.SECRET);
+                            res.json({ status: 'Success voter login!', token: token });
+                        }
+                        else if(user.type=="candidate"){
+                            let token = jwt.sign({ userId: user._id }, process.env.SECRET);
+                            res.json({ status: 'Success candidate login!', token: token });
+                        }
+        
+                     
+                    });
+                }
+               
+                
+            
+             
         }).catch(next);
 });
 
@@ -105,4 +101,24 @@ router.put('/loggedUserDetails', auth.verifyUser, (req, res, next) => {
             res.json({ username: user.username, firstName: user.firstName, lastName: user.lastName });
         }).catch(next)
 });
+
+
+router.put('/vote/:id',auth.verifyUser,(req,res,next)=>{
+        User.find({_id:req.params.id, votes:req.user._id})
+        .then((user)=>{
+            if(user==0){
+              User.findByIdAndUpdate(
+                  req.params.id,
+                  {$push: {votes:req.user._id}},
+                  {new : true}
+              ).then(()=>{
+                  res.json('Voted')
+              }).catch(next)
+            }else{
+                res.send('vote garna napaune')
+            }
+        }).catch(next)
+} )
 module.exports = router;
+
+

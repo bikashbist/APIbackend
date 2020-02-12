@@ -4,7 +4,9 @@ const dotenv = require('dotenv').config();
 const cors = require('cors');
 const morgan = require('morgan');
 const userRouter = require('./routes/user');
+const canUserRouter = require('./routes/candidateUser');
 const proImageRouter = require('./routes/userImage');
+const auth = require('./auth');
 
 
 const app = express();
@@ -17,6 +19,8 @@ const mongoose = require('mongoose');
 
 app.use('/users', userRouter);
 app.use('/proImageUpload', proImageRouter);
+app.use(auth.verifyUser)
+app.use('/users', canUserRouter);
 
 
 

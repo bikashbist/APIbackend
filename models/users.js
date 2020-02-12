@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const {ObjectId}=mongoose.Schema;
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -27,7 +27,17 @@ const userSchema = new mongoose.Schema({
     type:{
         type:String,
         required:true
+    },
+    votes:[
+        {
+            type:ObjectId, ref:"User"
+        }
+    ],
+    verify:{
+        type:Boolean,
+        default:false
     }
+
 }, { timestamps: true })
 
 module.exports = mongoose.model('User', userSchema);
