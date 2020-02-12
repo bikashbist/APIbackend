@@ -50,19 +50,38 @@ router.post('/login', (req, res, next) => {
     User.findOne({ username: req.body.username })
         .then((user) => {
             if (user === null) {
-                let err = new Error('User not found!');
+                let err = new Error('User  is not registered!');
                 err.status = 401;
                 return next(err);
+            }else if(user.type=="normal"){
+
+                bcrypt.compare(req.body.password, user.password, function (err, status) {
+                    if (!status) {
+                        let err = new Error('You entered wrong password!');
+                        err.status = 401;
+                        return next(err);
+                    }
+    
+    
+                    let token = jwt.sign({ userId: user._id }, process.env.SECRET);
+                    res.json({ status: 'Success normal login!', token: token });
+                });
+            }else if(user.type=="canditate"){
+
+                bcrypt.compare(req.body.password, user.password, function (err, status) {
+                    if (!status) {
+                        let err = new Error('You entered wrong password!');
+                        err.status = 401;
+                        return next(err);
+                    }
+    
+    
+                    let token = jwt.sign({ userId: user._id }, process.env.SECRET);
+                    res.json({ status: 'Success candatite login!', token: token });
+                });
             }
-            bcrypt.compare(req.body.password, user.password, function (err, status) {
-                if (!status) {
-                    let err = new Error('Password does not match!');
-                    err.status = 401;
-                    return next(err);
-                }
-                let token = jwt.sign({ userId: user._id }, process.env.SECRET);
-                res.json({ status: 'Login Successful!', token: token });
-            });
+           
+          
         }).catch(next);
 });
 

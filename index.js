@@ -19,6 +19,15 @@ app.use('/users', userRouter);
 app.use('/proImageUpload', proImageRouter);
 
 
+
+
+//errror handling
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.statusCode = 500;
+    res.json({ status: err.message });
+})
+
 mongoose.connect(process.env.URL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
     .then((db) => {
         console.log("Successfully connected mongodb server");
