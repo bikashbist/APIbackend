@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const auth=require('../auth');
 const router = express.Router();
 const User = require('../models/users');
 
@@ -66,7 +67,7 @@ router.post('/login', (req, res, next) => {
                     let token = jwt.sign({ userId: user._id }, process.env.SECRET);
                     res.json({ status: 'Success normal login!', token: token });
                 });
-            }else if(user.type=="canditate"){
+            }else if(user.type=="candidate"){
 
                 bcrypt.compare(req.body.password, user.password, function (err, status) {
                     if (!status) {
@@ -77,12 +78,22 @@ router.post('/login', (req, res, next) => {
     
     
                     let token = jwt.sign({ userId: user._id }, process.env.SECRET);
-                    res.json({ status: 'Success candatite login!', token: token });
+                    res.json({ status: 'Success candidate login!', token: token });
                 });
             }
            
           
         }).catch(next);
+});
+
+
+//for forgot-password
+
+
+//to get details of logged user
+
+router.get('/loggedUserDetails', auth.verifyUser, (req, res, next) => {
+    res.json(req.user);
 });
 
 module.exports = router;
