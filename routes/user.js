@@ -96,4 +96,13 @@ router.get('/loggedUserDetails', auth.verifyUser, (req, res, next) => {
     res.json(req.user);
 });
 
+
+
+//update userDetails
+router.put('/loggedUserDetails', auth.verifyUser, (req, res, next) => {
+    User.findByIdAndUpdate(req.user._id, { $set: req.body }, { new: true })
+        .then((user) => {
+            res.json({ username: user.username, firstName: user.firstName, lastName: user.lastName });
+        }).catch(next)
+});
 module.exports = router;
