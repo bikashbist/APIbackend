@@ -51,25 +51,31 @@ router.post('/login', (req, res, next) => {
     User.findOne({ username: req.body.username })
         .then((user) => {
             if (user === null) {
-                let err = new Error('User  is not registered!');
-                err.status = 401;
-                return next(err);
+                // let err = new Error('User  is not registered!');
+                // err.status = 401;
+                // return next(err);
+                res.status(403)
+                res.json({code:403, status: 'User not registered',token:'Not found'}); 
             }
                else {
                     bcrypt.compare(req.body.password, user.password, function (err, status) {
                         if (!status) {
-                            let err = new Error('You entered wrong password!');
-                            err.status = 401;
-                            return next(err);
+                            // let err = new Error('You entered wrong password!');
+                            // err.status = 401;
+                            // return next(err);
+                            res.status(404)
+                            res.json({code:404, status: 'You entered wrong password!',token:'Password incorrect' });
                         }
 
                         else if(user.type=="voter"){
                             let token = jwt.sign({ userId: user._id }, process.env.SECRET);
-                            res.json({ status: 'Success voter login!', token: token });
+                            res.status(200)
+                            res.json({code:200, status: 'Success voter login!', token: token });
                         }
                         else if(user.type=="candidate"){
                             let token = jwt.sign({ userId: user._id }, process.env.SECRET);
-                            res.json({ status: 'Success candidate login!', token: token });
+                            res.status(201)
+                            res.json({code:201, status: 'Success candidate login!', token: token });
                         }
         
                      
@@ -83,7 +89,6 @@ router.post('/login', (req, res, next) => {
 });
 
 
-//for forgot-password
 
 
 //to get details of logged user
@@ -102,7 +107,17 @@ router.put('/loggedUserDetails', auth.verifyUser, (req, res, next) => {
         }).catch(next)
 });
 
+//userlist
+router.get('/userList',(req,res,next)=>{
+    User.find()
+    .then((user)=>{
+        res.json(user)
+    }).catch(next)
+})
 
+
+
+//vote user
 router.put('/vote/:id',auth.verifyUser,(req,res,next)=>{
         User.find({_id:req.params.id, votes:req.user._id})
         .then((user)=>{
@@ -112,10 +127,12 @@ router.put('/vote/:id',auth.verifyUser,(req,res,next)=>{
                   {$push: {votes:req.user._id}},
                   {new : true}
               ).then(()=>{
-                  res.json('Voted')
+                  res.status(201)
+                  res.json({code:201, status:'Vot added'})
               }).catch(next)
             }else{
-                res.send('vote garna napaune')
+                res.status(202)
+                  res.json({code:202, status:'Already voted'})
             }
         }).catch(next)
 } )
